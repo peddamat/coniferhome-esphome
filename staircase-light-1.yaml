@@ -1,0 +1,8 @@
+substitutions:
+  device_name: staircase-light-1 
+  device_name_alt: staircase_light_1 
+  friendly_name: Staircase Light
+  host_name: staircase_light_1.local
+
+packages:
+  device_base: !include common/treatlife-ss02.yaml

@@ -1,0 +1,4 @@
+secrets.yaml
+.esphome/
+cache/
+DELETE/

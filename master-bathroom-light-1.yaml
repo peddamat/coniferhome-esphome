@@ -1,0 +1,7 @@
+substitutions:
+  device_name: master-bathroom-light-1
+  friendly_name: Master Bathroom Light
+  host_name: master-bathroom-light-1.local
+
+packages:
+  device_base: !include common/treatlife-ds02s.yaml

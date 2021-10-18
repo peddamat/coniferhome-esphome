@@ -1,0 +1,8 @@
+substitutions:
+  device_name: hallway-light-1
+  device_name_alt: hallway_light_1
+  friendly_name: Hallway Light
+  host_name: hallway_light_1.local
+
+packages:
+  device_base: !include common/treatlife-ss02.yaml

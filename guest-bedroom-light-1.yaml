@@ -1,0 +1,7 @@
+substitutions:
+  device_name: guest-bedroom-light-1
+  friendly_name: Guest Bedroom Light
+  host_name: guest_bedroom_light_1.local
+
+packages:
+  device_base: !include common/treatlife-ds02s.yaml

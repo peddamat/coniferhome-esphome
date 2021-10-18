@@ -1,0 +1,14 @@
+wifi:
+  domain: .iot.home
+  fast_connect: true
+  networks:
+    ssid: !secret wifi_ssid
+    password: !secret wifi_password
+    hidden: true
+#  manual_ip:
+#    static_ip: ${static_ip} 
+#    gateway: 172.16.3.1 
+#    subnet: 255.255.255.0
+  ap:
+    ssid: ${device_name}
+    password: !secret esphome_ap_password
