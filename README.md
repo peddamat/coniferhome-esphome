@@ -1,0 +1,2 @@
+# coniferhome-esphome
+ESPHome configs.
