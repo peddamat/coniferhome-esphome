@@ -1,0 +1,32 @@
+time:
+  - platform: homeassistant
+    # https://esphome.io/components/time
+    id: homeassistant_time
+
+# logger:
+
+button:
+  - platform: restart
+    id: restart_button
+    name: $device_name Restart
+    entity_category: diagnostic
+
+text_sensor:
+  - platform: version
+    name: $device_name ESPHome Version
+    id: esphome_version
+    hide_timestamp: True
+  - platform: wifi_info
+    ip_address:
+      id: ip_address
+      name: $device_name IP Address
+    mac_address:
+      name: $device_name Mac
+      id: mac_address
+
+sensor:
+  - platform: uptime
+    name: $device_name Uptime Sensor
+  - platform: wifi_signal
+    name: $device_name WiFi Signal
+

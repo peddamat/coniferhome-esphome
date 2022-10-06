@@ -8,7 +8,6 @@ esphome:
   board: esp01_1m
   name_add_mac_suffix: true
 
-
 wifi:
   ssid: !secret wifi_ssid
   password: !secret wifi_password

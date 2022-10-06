@@ -1,6 +1,6 @@
 substitutions:
   device_name: master-bedroom-light-2 
-  friendly_name: Master Bedroom Light 2
+  friendly_name: Master Bedroom Baby Light
   host_name: master-bedroom-light-2.local
 
 packages:

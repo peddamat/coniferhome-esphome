@@ -24,7 +24,7 @@ web_server:
 uart:
   rx_pin: GPIO3
   tx_pin: GPIO1
-  baud_rate: 9600
+  baud_rate: 115200
 
 tuya:
 
@@ -71,18 +71,33 @@ text_sensor:
 
 select:
   - platform: "tuya"
-    name: "Dimming Mode"
-    enum_datapoint: 4
+    name: "Dimmer Mode"
+    enum_datapoint: 0x6a
     options:
       0: Mode 1 
       1: Mode 2
       2: Mode 3 
 
+number:
+  - platform: "tuya"
+    name: "Dimmer Range"
+    number_datapoint: 0x69
+    min_value: 10
+    max_value: 100 
+    step: 10
+
 light:
   - platform: "tuya"
-    name: ${friendly_name}
-    dimmer_datapoint: 2
-    switch_datapoint: 1
-    min_value_datapoint: 3
+    name: $friendly_name Light
+    dimmer_datapoint: 10
+    switch_datapoint: 9
+    min_value_datapoint: 105
     min_value: 10
     max_value: 1000
+
+fan:
+  - platform: "tuya"
+    name: $friendly_name Fan 
+    switch_datapoint: 1
+    speed_datapoint: 3
+    speed_count: 4
