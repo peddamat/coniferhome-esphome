@@ -1,7 +1,0 @@
-substitutions:
-  device_name: downstairs-guest-light-1 
-  friendly_name: Downstairs Guest Bedroom Light 
-  host_name: downstairs-guest-light-1.local
-
-packages:
-  device_base: !include common/tessan_mj_sd02.yaml

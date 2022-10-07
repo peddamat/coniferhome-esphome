@@ -1,7 +1,0 @@
-substitutions:
-  device_name: family-room-light-2
-  friendly_name: Family Room Bar Light
-  host_name: family-room-light-2.local
-
-packages:
-  device_base: !include common/treatlife-ds02s.yaml
