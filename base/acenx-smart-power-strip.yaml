@@ -1,6 +1,5 @@
 substitutions:
   device_name: acenx_smart_power
-  log_level: DEBUG
 
 packages:
   board: !include ../common/esp8266ex.yaml

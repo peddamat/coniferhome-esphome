@@ -1,7 +1,0 @@
-substitutions:
-  device_name: upstairs-bedroom-light-main
-  friendly_name: Upstairs Bedroom 
-  host_name: upstairs-bedroom-light-main.local
-
-packages:
-  device_base: !include common/treatlife-ds03.yaml

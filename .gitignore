@@ -2,3 +2,6 @@ secrets.yaml
 .esphome/
 cache/
 DELETE/
+.DS_Store
+build/
+*.bin

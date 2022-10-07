@@ -1,0 +1,19 @@
+substitutions:
+  device_name: master-bathroom-light
+  friendly_name: Master Bathroom Light
+  log_level: INFO
+
+packages:
+  device_base: !include ../base/cloudfree-swm1.yaml
+
+# Initial Settings
+esphome:
+  on_boot:
+    priority: 600
+    then:
+      # Enable "Auto-On"
+      - switch.turn_on: auto_on
+      # Set Occupancy Timeout (mins)
+      - number.set:
+          id: occupancy_timeout
+          value: 10

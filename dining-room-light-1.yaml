@@ -1,8 +1,0 @@
-substitutions:
-  device_name: dining-room-light-1
-  friendly_name: Dining Room Light
-  host_name: dining-room-light-1.local
-#  static_ip: 172.16.3.10
-
-packages:
-  device_base: !include common/treatlife-ds02s.yaml

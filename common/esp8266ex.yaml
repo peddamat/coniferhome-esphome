@@ -2,8 +2,9 @@ esphome:
   name: ${device_name}
   platform: ESP8266
   board: esp01_1m
-  name_add_mac_suffix: true
-  build_path: ./build/${device_name}
+  name_add_mac_suffix: false 
+  build_path: ../build/${device_name}
+  # esp8266_restore_from_flash: true
 
 # Enable logging
 logger:

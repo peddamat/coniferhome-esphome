@@ -1,7 +1,3 @@
-substitutions:
-  icon: "mdi:light-switch"
-  log_level: DEBUG
-
 packages:
   board: !include ../common/esp8266ex.yaml
   default_sensors: !include ../common/default_sensors.yaml

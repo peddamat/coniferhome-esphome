@@ -1,6 +1,0 @@
-substitutions:
-  device_name: master-bathroom-motion
-  friendly_name: Master Bathroom Light
-
-packages:
-  device_base: !include ../base/cloudfree-swm1.yaml
