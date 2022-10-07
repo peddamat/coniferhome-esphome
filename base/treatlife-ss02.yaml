@@ -1,7 +1,3 @@
-substitutions:
-  icon: "mdi:light-switch"
-  log_level: DEBUG
-
 packages:
   board: !include ../common/esp8266ex.yaml
   default_sensors: !include ../common/default_sensors.yaml
@@ -11,6 +7,7 @@ status_led:
   pin:
     number: GPIO5   # Red LED
     inverted: True
+
 binary_sensor:
   - platform: gpio
     id: power_sensor
@@ -24,6 +21,7 @@ binary_sensor:
     on_release:
       - light.turn_on: white_led
     internal: True
+
   - platform: gpio
     pin:
       number: GPIO13
@@ -33,18 +31,21 @@ binary_sensor:
       then:
       - switch.toggle: ${device_name_alt}
     internal: True
+
 light:
   - platform: binary
     id: white_led
     output: led_1
     restore_mode: RESTORE_DEFAULT_ON
     internal: True
+
 output:
   - platform: gpio
     id: led_1
     pin:
       number: GPIO4
       inverted: True
+
 switch:
   - platform: gpio
     id: red_led
@@ -62,7 +63,7 @@ switch:
   - platform: template
     name: ${friendly_name}
     id: ${device_name_alt}
-    icon: ${icon}
+    icon: "mdi:light-switch"
     lambda: |-
       if (id(power_sensor).state) {
         return true;

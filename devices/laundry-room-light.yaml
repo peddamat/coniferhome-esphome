@@ -1,6 +1,7 @@
 substitutions:
-  device_name: laundry-light-motion
+  device_name: laundry-room-light
   friendly_name: Laundry Room Light
+  log_level: INFO
 
 packages:
   device_base: !include common/cloudfree-swm1.yaml

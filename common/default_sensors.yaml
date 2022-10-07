@@ -8,12 +8,12 @@ text_sensor:
       id: ip_address
       name: $device_name IP Address
     mac_address:
-      name: $device_name Mac
+      name: $device_name MAC
       id: mac_address
 
 sensor:
-  - platform: uptime
-    name: $device_name Uptime Sensor
+  # - platform: uptime
+  #   name: $device_name Uptime Sensor
   - platform: wifi_signal
     name: $device_name WiFi Signal
     update_interval: 1h

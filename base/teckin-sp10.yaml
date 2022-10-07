@@ -1,7 +1,5 @@
 substitutions:
   device_name: teckin_sp10 #change
-  icon: "mdi:light-switch"
-  log_level: DEBUG
 
 packages:
   board: !include ../common/esp8266ex.yaml

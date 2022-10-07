@@ -1,5 +1,4 @@
 substitutions:
-  icon: "mdi:light-switch"
   pwm_min_power: 15% # keep dimming functional at lowest levels
   no_delay: 0s # transition when changing dimmer_lvl & relay delay
   transition_length: .5s # transition when turning on/off
@@ -8,7 +7,6 @@ substitutions:
   long_press_up: 100% # long press brightness
   long_press_down: 33% # long press brightness
   long_press_main: 50% # long press brightness
-  log_level: DEBUG
 
 packages:
   board: !include ../common/esp8266ex.yaml

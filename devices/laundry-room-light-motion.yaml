@@ -1,6 +1,0 @@
-substitutions:
-  device_name: laundry-light-motion
-  friendly_name: Laundry Room Light
-
-packages:
-  device_base: !include common/cloudfree-swm1.yaml

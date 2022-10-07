@@ -1,12 +1,160 @@
 substitutions:
   device_name: cloudfree_swm1 #change
-  log_level: DEBUG
 
 packages:
   board: !include ../common/esp8266ex.yaml
   default_sensors: !include ../common/default_sensors.yaml
   default_controls: !include ../common/default_controls.yaml
 
+
+binary_sensor:
+  # Main Switch
+  - platform: gpio
+    name: $friendly_name Button
+    id: main_switch
+    pin:
+      number: GPIO0
+      mode: INPUT_PULLUP
+    internal: True
+    on_press:
+      - switch.toggle: relay
+
+  # Motion Sensor
+  - platform: gpio
+    name: $friendly_name Motion
+    id: motion_sensor
+    pin: 
+      number: GPIO05
+      mode: INPUT
+    icon: "mdi:motion-sensor"
+    device_class: "motion"        # https://www.home-assistant.io/integrations/binary_sensor/#device-class
+    publish_initial_state: true   # Avoids 'unknown' state on reboot
+
+    filters:
+      - invert:
+
+    on_press:
+      - binary_sensor.template.publish:
+          id: occupancy_sensor
+          state: !lambda 'return id(motion_sensor).state;'
+
+  # Daylight Sensor   
+  - platform: gpio
+    name: $friendly_name Daylight
+    id: daylight_sensor
+    pin: 
+      number: GPIO14
+      mode: INPUT
+    icon: "mdi:white-balance-sunny"
+    device_class: "light"
+    publish_initial_state: true
+
+    filters:
+      # Helps prevent spamming messages around dusk
+      - delayed_on: 50ms
+
+  # Occupancy Sensor
+  - platform: template
+    name: $friendly_name Occupancy
+    id: occupancy_sensor
+    publish_initial_state: true
+
+    on_press:
+      then:
+        - logger.log: "Turning on occupancy sensor"
+        - delay: !lambda 'return id(occupancy_timeout).state * 60.0 * 1000.0;'
+        - logger.log: "Turning off occupancy sensor"
+        - binary_sensor.template.publish:
+            id: occupancy_sensor
+            state: OFF
+    
+    on_state:
+      then:
+        - if: 
+            condition:
+              lambda: 'return id(auto_on).state;'
+            then:
+              - lambda: |-
+                  if ( id(occupancy_sensor).state ) {
+                    ESP_LOGD("cloudfree-swm1", "Turning on light")
+                    id(relay).turn_on();
+                  } else {
+                    ESP_LOGD("cloudfree-swm1", "Turning off light")
+                    id(relay).turn_off();
+                  }
+            else:
+              - logger.log: "Auto-on is disabled"
+
+switch:
+  # Internal Relay
+  - platform: gpio
+    name: $friendly_name Light
+    id: relay
+    pin: GPIO12
+    icon: "mdi:lightbulb"
+    device_class: "switch"        # https://www.home-assistant.io/integrations/binary_sensor/#device-class
+
+  # Status LED (Blue)
+  - platform: gpio
+    name: $friendly_name Status LED (Blue)
+    id: blue_led
+    pin: 
+      number: GPIO13
+      mode: OUTPUT_OPEN_DRAIN
+    device_class: "switch"        # https://www.home-assistant.io/integrations/binary_sensor/#device-class
+    internal: true
+    inverted: true
+
+  # Status LED (Green)
+  #  NOTE: This LED is internally hard-wired to turn on when the relay is on
+  - platform: gpio
+    name: $friendly_name Status LED (Green)
+    id: green_led
+    pin: 
+      number: GPIO16
+      mode: OUTPUT
+    device_class: "switch"        # https://www.home-assistant.io/integrations/binary_sensor/#device-class
+    internal: True
+
+
+  # Couple Relay With Occupancy
+  - platform: template
+    name: $friendly_name Auto On
+    id: auto_on
+    icon: "mdi:light-switch"
+    entity_category: config
+    optimistic: true
+
+  # Enable LED When Occupancy Detected
+  - platform: template
+    name: $friendly_name Occupancy LED
+    id: occupancy_led_switch
+    icon: "mdi:led-off"
+    entity_category: config
+    optimistic: true
+
+  # Enable LED When Motion Detected
+  - platform: template
+    name: $friendly_name Motion LED
+    id: motion_led_switch
+    icon: "mdi:led-off"
+    entity_category: config
+    optimistic: true
+
+number:
+  - platform: template
+    name: $friendly_name Occupancy Timeout (mins)
+    id: occupancy_timeout
+    unit_of_measurement: "min"
+    entity_category: config
+    optimistic: true
+    min_value: 0
+    max_value: 30
+    step: 5
+    initial_value: 10
+    # restore_value: true
+
+# Allow manual control of the device's status LEDs
 api:
   services:
     - service: turn_on_green_led 
@@ -21,121 +169,3 @@ api:
     - service: turn_off_blue_led 
       then:
         - switch.turn_off: blue_led
-
-binary_sensor:
-  - platform: gpio
-    pin:
-      number: GPIO0
-      mode: INPUT_PULLUP
-    name: $device_name Button
-    internal: True
-    on_press:
-      - switch.toggle: relay
-
-  - platform: gpio
-    pin: 
-      number: GPIO05
-      mode: INPUT
-    id: motion_sensor
-    publish_initial_state: true
-    name: $device_name Motion
-    filters:
-      - invert:
-    icon: "mdi:motion-sensor"
-    # https://www.home-assistant.io/integrations/binary_sensor/#device-class
-    device_class: "motion"
-
-    on_state:
-      - binary_sensor.template.publish:
-          id: occupancy_sensor
-          state: !lambda 'return id(motion_sensor).state;'
-
-  - platform: template
-    name: $device_name Occupancy
-    id: occupancy_sensor
-    publish_initial_state: true
-    filters:
-      - delayed_off: 60000ms
-   
-  - platform: gpio
-    pin: 
-      number: GPIO14
-      mode: INPUT
-    id: daylight_sensor
-    publish_initial_state: true
-    name: $device_name Daylight
-    icon: "mdi:white-balance-sunny"
-    filters:
-      # Helps prevent spamming messages around dusk
-      - delayed_on: 50ms
-    device_class: "light"
-
-# light:
-#   - platform: status_led
-#     name: "Status"
-#     pin: GPIO13
-#     id: blue_led
-
-switch:
-  # D1 - Top - 0V
-  - platform: gpio
-    id: relay
-    name: $device_name Light Switch
-    pin: GPIO12
-    icon: "mdi:lightbulb"
-    # https://www.home-assistant.io/integrations/binary_sensor/#device-class
-    device_class: "switch"
-
-    # on_turn_on: 
-    #   - switch.turn_off: green_led
-
-    # on_turn_off: #purple when off
-    #   - switch.turn_on: green_led
-
-  - platform: gpio
-    name: $device_name Status LED (Blue)
-    pin: 
-      number: GPIO13
-      mode: OUTPUT_OPEN_DRAIN
-    id: blue_led
-    inverted: true
-    icon: "mdi:led"
-    # https://www.home-assistant.io/integrations/binary_sensor/#device-class
-    device_class: "switch"
-    internal: True
-
-  # D1 - Bottom GPIO16 - 3.3V
-  - platform: gpio
-    name: $device_name Status LED (Green)
-    pin: 
-      number: GPIO16
-      mode: OUTPUT
-    id: green_led
-    # https://www.home-assistant.io/integrations/binary_sensor/#device-class
-    device_class: "switch"
-    internal: True
-
-  - platform: template
-    name: $device_name Occupancy LED
-    id: occupancy_led_switch
-    icon: "mdi:led-off"
-    entity_category: config
-    optimistic: true
-
-  - platform: template
-    name: $device_name Motion LED
-    id: motion_led_switch
-    icon: "mdi:led-off"
-    entity_category: config
-    optimistic: true
-
-number:
-  - platform: template
-    name: $device_name Timeout (Occupancy)
-    id: occupancy_timeout
-    unit_of_measurement: "m"
-    entity_category: config
-    optimistic: true
-    min_value: 0
-    max_value: 30
-    step: 5
