@@ -1,0 +1,24 @@
+substitutions:
+  icon: "mdi:light-switch"
+  log_level: DEBUG
+
+packages:
+  board: !include ../common/esp8266ex.yaml
+  default_sensors: !include ../common/default_sensors.yaml
+  default_controls: !include ../common/default_controls.yaml
+
+uart:
+  rx_pin: GPIO13
+  tx_pin: GPIO15
+  baud_rate: 9600 
+
+tuya:
+
+light:
+   - platform: "tuya"
+     name: ${friendly_name}
+     dimmer_datapoint: 3
+     switch_datapoint: 1
+     min_value_datapoint: 
+     min_value: 10
+     max_value: 255

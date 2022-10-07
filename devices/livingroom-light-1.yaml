@@ -1,0 +1,7 @@
+substitutions:
+  device_name: living-room-light-1 
+  friendly_name: Living Room Light 
+  host_name: living-room-light-1-363ee9.iot.home 
+
+packages:
+  device_base: !include common/topgreener_tgwf500d.yaml

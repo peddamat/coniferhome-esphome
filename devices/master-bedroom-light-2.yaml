@@ -1,0 +1,7 @@
+substitutions:
+  device_name: master-bedroom-light-2 
+  friendly_name: Master Bedroom Baby Light
+  host_name: master-bedroom-light-2.local
+
+packages:
+  device_base: !include common/treatlife-ds02s.yaml

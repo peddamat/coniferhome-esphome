@@ -1,0 +1,7 @@
+substitutions:
+  device_name: outdoor_side_light_1
+  device_name_alt: outdoor_side_light_1
+  friendly_name: Outdoor Side Light
+
+packages:
+  device_base: !include common/treatlife-ss02.yaml

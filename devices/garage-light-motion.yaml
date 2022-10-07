@@ -1,0 +1,6 @@
+substitutions:
+  device_name: garage-light-motion
+  friendly_name: Garage Light
+
+packages:
+  device_base: !include common/cloudfree-swm1.yaml

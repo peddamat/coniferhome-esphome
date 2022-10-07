@@ -1,0 +1,7 @@
+substitutions:
+  device_name: family-room-light-1
+  friendly_name: Family Room Ceiling Light
+  host_name: family-room-light-1.local
+
+packages:
+  device_base: !include common/treatlife-ds02s.yaml

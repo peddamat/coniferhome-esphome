@@ -1,0 +1,33 @@
+substitutions:
+  icon: "mdi:light-switch"
+  log_level: DEBUG
+
+packages:
+  board: !include ../common/esp8266ex.yaml
+  default_sensors: !include ../common/default_sensors.yaml
+  default_controls: !include ../common/default_controls.yaml
+
+uart:
+  rx_pin: GPIO3
+  tx_pin: GPIO1
+  baud_rate: 9600
+
+tuya:
+
+select:
+  - platform: "tuya"
+    name: "Dimming Mode"
+    enum_datapoint: 4
+    options:
+      0: Mode 1 
+      1: Mode 2
+      2: Mode 3 
+
+light:
+  - platform: "tuya"
+    name: ${friendly_name}
+    dimmer_datapoint: 2
+    switch_datapoint: 1
+    min_value_datapoint: 3
+    min_value: 10
+    max_value: 1000
