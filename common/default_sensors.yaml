@@ -1,0 +1,19 @@
+text_sensor:
+  - platform: version
+    name: $device_name ESPHome Version
+    id: esphome_version
+    hide_timestamp: True
+  - platform: wifi_info
+    ip_address:
+      id: ip_address
+      name: $device_name IP Address
+    mac_address:
+      name: $device_name Mac
+      id: mac_address
+
+sensor:
+  - platform: uptime
+    name: $device_name Uptime Sensor
+  - platform: wifi_signal
+    name: $device_name WiFi Signal
+    update_interval: 1h

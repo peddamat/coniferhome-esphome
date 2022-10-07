@@ -1,0 +1,5 @@
+button:
+  - platform: restart
+    id: restart_button
+    name: $device_name Restart
+    entity_category: diagnostic

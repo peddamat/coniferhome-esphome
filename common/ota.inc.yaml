@@ -1,0 +1,2 @@
+ota:
+  password: !secret esphome_ota_password

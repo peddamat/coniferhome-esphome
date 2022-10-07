@@ -1,0 +1,28 @@
+esphome:
+  name: ${device_name}
+  platform: ESP8266
+  board: esp01_1m
+  name_add_mac_suffix: true
+  build_path: ./build/${device_name}
+
+# Enable logging
+logger:
+  level: ${log_level}
+
+# NTP Configuration
+time:
+  - <<: !include time.config.yaml
+
+# Wi-Fi Configuration
+<<: !include ./wifi.inc.yaml
+
+# Enable Over the Air updates
+<<: !include ./ota.inc.yaml
+
+# Enable Home Assistant API
+<<: !include ./api.inc.yaml
+
+web_server:
+  port: 80
+
+captive_portal:
