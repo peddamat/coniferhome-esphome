@@ -7,7 +7,11 @@ packages:
   default_controls: !include ../common/default_controls.yaml
 
 
+###############################################################################
+# Binary Sensors
+###############################################################################
 binary_sensor:
+
   # Main Switch
   - platform: gpio
     name: $friendly_name Button
@@ -16,8 +20,9 @@ binary_sensor:
       number: GPIO0
       mode: INPUT_PULLUP
     internal: True
+
     on_press:
-      - switch.toggle: relay
+      - script.execute: toggle_relay 
 
   # Motion Sensor
   - platform: gpio
@@ -33,10 +38,27 @@ binary_sensor:
     filters:
       - invert:
 
-    on_press:
-      - binary_sensor.template.publish:
-          id: occupancy_sensor
-          state: !lambda 'return id(motion_sensor).state;'
+    on_state:
+      - script.execute: toggle_status_led
+      - script.execute: start_occupancy_sensor_timer 
+
+  # Occupancy Sensor
+  - platform: template
+    name: $friendly_name Occupancy
+    id: occupancy_sensor
+    publish_initial_state: true
+
+    on_state:
+      then:
+        - script.execute: toggle_status_led
+        - lambda: |-
+            auto mode = id(mode_select).active_index();
+
+            if ( mode == 0 ) {
+              if ( !id(relay_disabled) ) {
+                id(run_motion_light_actions).execute();
+              }
+            }
 
   # Daylight Sensor   
   - platform: gpio
@@ -53,38 +75,137 @@ binary_sensor:
       # Helps prevent spamming messages around dusk
       - delayed_on: 50ms
 
-  # Occupancy Sensor
+
+###############################################################################
+# Scripts
+###############################################################################
+globals:
+  # Used to implement 'Manual Off Timeout'
+  - id: relay_disabled
+    type: bool
+    restore_value: no
+    initial_value: "false"
+
+number:
+  # Determines how long to keep the Occupancy sensor on after the Motion sensor turns on
   - platform: template
-    name: $friendly_name Occupancy
-    id: occupancy_sensor
-    publish_initial_state: true
+    name: $friendly_name Occupancy Timeout
+    id: occupancy_timeout
+    icon: "mdi:timer"
+    unit_of_measurement: "min"
+    entity_category: config
+    optimistic: true
+    min_value: 0
+    max_value: 30
+    step: 5
+    initial_value: 10
+    mode: box
+    # restore_value: true
 
-    on_press:
-      then:
-        - logger.log: "Turning on occupancy sensor"
-        - delay: !lambda 'return id(occupancy_timeout).state * 60.0 * 1000.0;'
-        - logger.log: "Turning off occupancy sensor"
-        - binary_sensor.template.publish:
-            id: occupancy_sensor
-            state: OFF
-    
-    on_state:
-      then:
-        - if: 
-            condition:
-              lambda: 'return id(auto_on).state;'
-            then:
-              - lambda: |-
-                  if ( id(occupancy_sensor).state ) {
-                    ESP_LOGD("cloudfree-swm1", "Turning on light")
-                    id(relay).turn_on();
-                  } else {
-                    ESP_LOGD("cloudfree-swm1", "Turning off light")
-                    id(relay).turn_off();
-                  }
-            else:
-              - logger.log: "Auto-on is disabled"
+  # Determines how long, after manually turning off a light, to ignore the Motion sensor.
+  #  This helps avoid immediately triggering the light switch after it's turned off.
+  - platform: template
+    name: $friendly_name Manual Off Timeout
+    id: manual_off_timeout
+    icon: "mdi:timer"
+    unit_of_measurement: "s"
+    entity_category: config
+    optimistic: true
+    min_value: 0
+    max_value: 60
+    step: 5
+    initial_value: 10
+    mode: box
+    # restore_value: true
 
+script:
+  # Countdown starts from the last time this script is executed
+  - id: start_occupancy_sensor_timer 
+    mode: restart                 
+    then:
+      - logger.log: "Turning on occupancy sensor"
+      - binary_sensor.template.publish:
+          id: occupancy_sensor
+          state: ON
+      - delay: !lambda 'return id(occupancy_timeout).state * 60.0 * 1000.0;'
+      - logger.log: "Turning off occupancy sensor"
+      - binary_sensor.template.publish:
+          id: occupancy_sensor
+          state: OFF
+
+  # Actions to run if 'Motion Activated Light' mode is selected
+  - id: run_motion_light_actions
+    mode: single                 
+    then:
+      - lambda: |-
+          if ( id(occupancy_sensor).state ) {
+            ESP_LOGD("cloudfree-swm1", "Turning on light");
+            id(relay).turn_on();
+          } else {
+            ESP_LOGD("cloudfree-swm1", "Turning off light");
+            id(relay).turn_off();
+          }
+
+  - id: toggle_relay
+    mode: restart                 
+    then:
+      - if: 
+          condition:
+            # If the relay is already on...
+            lambda: 'return id(relay).state;'
+          then:
+            # ... then turn it off and disable the motion sensor for a while
+            - lambda: |-
+                ESP_LOGD("cloudfree-swm1", "Manually turning off light");
+                id(relay).turn_off();
+                ESP_LOGD("cloudfree-swm1", "Disabling motion sensor");
+                id(relay_disabled) = true;
+            - delay: !lambda 'return id(manual_off_timeout).state * 1000.0;'
+            # Reinitialize the occupancy binary sensor, in case it was already triggered
+            - binary_sensor.template.publish:
+                id: occupancy_sensor
+                state: OFF
+            - lambda: |-
+                ESP_LOGD("cloudfree-swm1", "Enabling motion sensor");
+                id(relay_disabled) = false;
+
+          else:
+            - switch.turn_on: relay
+
+  - id: toggle_status_led
+    mode: single                 
+    then:
+      - lambda: |-
+          auto mode = id(status_led_select).active_index();
+
+          if ( mode == 0 ) {
+            ESP_LOGD("cloudfree-swm1", "Turning off status led");
+            id(blue_led).turn_off();
+          }
+          // Motion LED Mode
+          else if ( mode == 1 ) {
+            ESP_LOGD("cloudfree-swm1", "Toggling motion status led");
+
+            if ( id(motion_sensor).state ) {
+              id(blue_led).turn_on();
+            } else {
+              id(blue_led).turn_off();
+            }
+          }
+          // Occupancy LED Mode
+          else if ( mode == 2 ) {
+            ESP_LOGD("cloudfree-swm1", "Toggling occupancy status led");
+
+            if ( id(occupancy_sensor).state ) {
+              id(blue_led).turn_on();
+            } else {
+              id(blue_led).turn_off();
+            }
+          }
+
+###############################################################################
+# Switches
+###############################################################################
 switch:
   # Internal Relay
   - platform: gpio
@@ -96,7 +217,6 @@ switch:
 
   # Status LED (Blue)
   - platform: gpio
-    name: $friendly_name Status LED (Blue)
     id: blue_led
     pin: 
       number: GPIO13
@@ -108,7 +228,6 @@ switch:
   # Status LED (Green)
   #  NOTE: This LED is internally hard-wired to turn on when the relay is on
   - platform: gpio
-    name: $friendly_name Status LED (Green)
     id: green_led
     pin: 
       number: GPIO16
@@ -116,47 +235,66 @@ switch:
     device_class: "switch"        # https://www.home-assistant.io/integrations/binary_sensor/#device-class
     internal: True
 
-
-  # Couple Relay With Occupancy
+select:
   - platform: template
-    name: $friendly_name Auto On
-    id: auto_on
-    icon: "mdi:light-switch"
+    name: $friendly_name Device Mode
+    id: mode_select
+    icon: "mdi:cog"
     entity_category: config
     optimistic: true
+    options:
+      - Motion Activated Light
+      - Motion Sensor
+    initial_option: Motion Sensor
 
-  # Enable LED When Occupancy Detected
+    on_value:
+      then:
+        - lambda: |-
+            auto mode = id(mode_select).active_index();
+
+            // Disable the Status LED if we're a Motion Activated Light
+            if ( mode == 0 ) {
+              ESP_LOGD("cloudfree-swm1", "Disabling Status LED");
+              auto call = id(status_led_select).make_call();
+              call.set_option("Disabled");
+              call.perform();              
+
+              // Reinitialize the occupancy binary sensor, in case it was already triggered
+              id(occupancy_sensor).publish_state(false);
+            }
+
   - platform: template
-    name: $friendly_name Occupancy LED
-    id: occupancy_led_switch
-    icon: "mdi:led-off"
+    name: $friendly_name LED Mode
+    id: status_led_select
+    icon: "mdi:alarm-light"
     entity_category: config
     optimistic: true
+    options:
+      - Disabled
+      - Motion
+      - Occupancy
+    initial_option: Disabled
 
-  # Enable LED When Motion Detected
-  - platform: template
-    name: $friendly_name Motion LED
-    id: motion_led_switch
-    icon: "mdi:led-off"
-    entity_category: config
-    optimistic: true
+    on_value:
+      then:
+        - script.execute: toggle_status_led
+        - lambda: |-
+            auto mode = id(status_led_select).active_index();
 
-number:
-  - platform: template
-    name: $friendly_name Occupancy Timeout (mins)
-    id: occupancy_timeout
-    unit_of_measurement: "min"
-    entity_category: config
-    optimistic: true
-    min_value: 0
-    max_value: 30
-    step: 5
-    initial_value: 10
-    # restore_value: true
+            // Disable the Status LED if we're a Motion Activated Light
+            if ( mode != 0 ) {
+              ESP_LOGD("cloudfree-swm1", "Changing mode to Motion Sensor");
+              auto call = id(mode_select).make_call();
+              call.set_option("Motion Sensor");
+              call.perform();              
+            }
 
-# Allow manual control of the device's status LEDs
+###############################################################################
+# Services
+###############################################################################
 api:
   services:
+    # Allow manual control of the device's status LEDs
     - service: turn_on_green_led 
       then:
         - switch.turn_on: green_led
