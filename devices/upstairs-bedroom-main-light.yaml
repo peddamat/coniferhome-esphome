@@ -1,0 +1,10 @@
+substitutions:
+  device_name: upstairs-bedroom-main-light
+  friendly_name: Upstairs Bedroom 
+  log_level: INFO
+
+wifi:
+  use_address: upstairs-bedroom-light-main.iot.home
+
+packages:
+  device_base: !include ../base/treatlife-ds03.yaml

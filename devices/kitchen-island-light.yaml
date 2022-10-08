@@ -1,0 +1,7 @@
+substitutions:
+  device_name: kitchen-island-light
+  friendly_name: Kitchen Island Light
+  log_level: INFO
+
+packages:
+  device_base: !include ../base/treatlife-ds02s.yaml

@@ -1,6 +1,6 @@
 substitutions:
-  device_name: laundry-room-light
-  friendly_name: Laundry Room
+  device_name: garage-light
+  friendly_name: Garage
   log_level: INFO
 
 packages:

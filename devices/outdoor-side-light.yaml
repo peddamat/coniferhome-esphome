@@ -4,4 +4,4 @@ substitutions:
   friendly_name: Outdoor Side Light
 
 packages:
-  device_base: !include common/treatlife-ss02.yaml
+  device_base: !include ../base/treatlife-ss02.yaml

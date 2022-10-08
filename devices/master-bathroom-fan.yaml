@@ -1,6 +1,6 @@
 substitutions:
-  device_name: master-bathroom-toilet-light
-  friendly_name: Master Bathroom Toilet Light
+  device_name: master-bathroom-fan
+  friendly_name: Master Bathroom Fan
   log_level: INFO
 
 packages:

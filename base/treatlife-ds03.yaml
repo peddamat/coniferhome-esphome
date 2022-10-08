@@ -38,20 +38,22 @@ tuya:
 
 select:
   - platform: "tuya"
-    name: "Dimmer Mode"
+    name: $friendly_name Dimmer Mode
     enum_datapoint: 0x6a
     options:
       0: Mode 1 
       1: Mode 2
       2: Mode 3 
+    entity_category: config
 
 number:
   - platform: "tuya"
-    name: "Dimmer Range"
+    name: $friendly_name Dimmer Range
     number_datapoint: 0x69
     min_value: 10
     max_value: 100 
     step: 10
+    entity_category: config
 
 light:
   - platform: "tuya"

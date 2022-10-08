@@ -1,0 +1,19 @@
+substitutions:
+  device_name: living-room-fireplace-light
+  friendly_name: Living Room Fireplace Light
+  log_level: INFO
+
+packages:
+  device_base: !include ../base/treatlife-ds02s.yaml
+
+# Initial Settings
+esphome:
+  on_boot:
+    priority: -100
+    then:
+      - number.set:
+          id: dimmer_min
+          value: 10
+      - select.set:
+          id: dimmer_mode
+          option: Mode 3
