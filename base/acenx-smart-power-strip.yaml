@@ -1,3 +1,4 @@
+# Reference: https://www.esphome-devices.com/devices/Gosund-WP9
 substitutions:
   device_name: acenx_smart_power
 
@@ -10,38 +11,38 @@ binary_sensor:
   - platform: gpio
     pin:
       number: GPIO16
-      mode: INPUT_PULLUP
+      # mode: INPUT_PULLUP
       inverted: yes
     name: "${device_name} Power Button"
-    id: "${device_name}_power_button"
+    id: "power_button"
     on_press:
       then:
-        - switch.toggle: "${device_name}_usb"
-        - switch.toggle: "${device_name}_switch1"
-        - switch.toggle: "${device_name}_switch2"
-        - switch.toggle: "${device_name}_switch3"
+        - switch.toggle: "usb"
+        - switch.toggle: "switch1"
+        - switch.toggle: "switch2"
+        - switch.toggle: "switch3"
 switch:
   - platform: gpio
     name: "${device_name} Switch1"
-    id: "${device_name}_switch1"
+    id: "switch1"
     pin: GPIO14
     restore_mode: "RESTORE_DEFAULT_ON"
 
   - platform: gpio
     name: "${device_name} Switch2"
-    id: "${device_name}_switch2"
+    id: "switch2"
     pin: GPIO12
     restore_mode: "RESTORE_DEFAULT_ON"
 
   - platform: gpio
     name: "${device_name} Switch3"
-    id: "${device_name}_switch3"
+    id: "switch3"
     pin: GPIO13
     restore_mode: "RESTORE_DEFAULT_ON"
 
   - platform: gpio
     name: "${device_name} usb"
-    id: "${device_name}_usb"
+    id: "usb"
     pin: GPIO05
     restore_mode: "RESTORE_DEFAULT_ON"
     on_turn_on:

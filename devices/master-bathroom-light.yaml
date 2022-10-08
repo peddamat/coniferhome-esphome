@@ -1,6 +1,6 @@
 substitutions:
   device_name: master-bathroom-light
-  friendly_name: Master Bathroom Light
+  friendly_name: Master Bathroom
   log_level: INFO
 
 packages:
@@ -11,8 +11,10 @@ esphome:
   on_boot:
     priority: 600
     then:
-      # Enable "Auto-On"
-      - switch.turn_on: auto_on
+      # Set Mode
+      - select.set:
+          id: mode_select
+          option: "Motion Activated Light"
       # Set Occupancy Timeout (mins)
       - number.set:
           id: occupancy_timeout

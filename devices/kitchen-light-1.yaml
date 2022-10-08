@@ -5,4 +5,4 @@ substitutions:
   host_name: kitchen_light_1.local
 
 packages:
-  device_base: !include common/treatlife-ss02.yaml
+  device_base: !include ../base/treatlife-ss02.yaml

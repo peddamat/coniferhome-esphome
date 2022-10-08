@@ -1,6 +1,6 @@
 substitutions:
-  device_name: laundry-room-light
-  friendly_name: Laundry Room
+  device_name: family-room-motion 
+  friendly_name: Family Room Motion
   log_level: INFO
 
 packages:
@@ -14,7 +14,7 @@ esphome:
       # Set Mode
       - select.set:
           id: mode_select
-          option: "Motion Activated Light"
+          option: "Motion Sensor"
       # Set Occupancy Timeout (mins)
       - number.set:
           id: occupancy_timeout

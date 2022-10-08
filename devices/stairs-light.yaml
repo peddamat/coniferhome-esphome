@@ -1,0 +1,7 @@
+substitutions:
+  device_name: stairs-light
+  friendly_name: Stairs Light
+  log_level: INFO
+
+packages:
+  device_base: !include ../base/topgreener_tgwf500d.yaml

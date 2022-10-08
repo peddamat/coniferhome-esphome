@@ -10,15 +10,6 @@ uart:
 
 tuya:
 
-select:
-  - platform: "tuya"
-    name: "Dimming Mode"
-    enum_datapoint: 4
-    options:
-      0: Mode 1 
-      1: Mode 2
-      2: Mode 3 
-
 light:
   - platform: "tuya"
     name: ${friendly_name}
@@ -27,3 +18,51 @@ light:
     min_value_datapoint: 3
     min_value: 10
     max_value: 1000
+
+# Dimming Mode Setting
+select:
+  - platform: "tuya"
+    name: ${friendly_name} Dimmer Mode
+    id: dimmer_mode
+    enum_datapoint: 4
+    options:
+      0: Mode 1 
+      1: Mode 2
+      2: Mode 3 
+    entity_category: config
+
+    # Workaround to ensure dimmer brightness reflects updated mode
+    #  TODO: Figure out how to force the update without artificially changing the value
+    on_value:
+      then:
+        - lambda: |-
+            auto call = id(dimmer_min).make_call();
+            call.set_value( id(dimmer_min).state + 1 );
+            call.perform();
+        - delay: 0.5s
+        - lambda: |-
+            auto call = id(dimmer_min).make_call();
+            call.set_value( id(dimmer_min).state - 1 );
+            call.perform();
+
+# Minimum Dimmer Setting 
+number:
+  - platform: "tuya"
+    name: ${friendly_name} Dimmer Minimum
+    id: dimmer_min
+    number_datapoint: 3
+    min_value: 10 
+    max_value: 90
+    step: 1
+    entity_category: config
+    mode: box
+
+    # Workaround to set dimmer minimum to 10% after reboots
+    on_value:
+      then:
+        - lambda: |-
+            if (x == 100) {
+              auto call = id(dimmer_min).make_call();
+              call.set_value(10);
+              call.perform();
+            }

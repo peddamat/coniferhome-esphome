@@ -23,13 +23,13 @@ binary_sensor:
     internal: True
 
   - platform: gpio
+    id: main_button
     pin:
       number: GPIO13
       inverted: True
-    id: button
     on_press:
       then:
-      - switch.toggle: ${device_name_alt}
+      - switch.toggle: light_switch
     internal: True
 
 light:
@@ -62,8 +62,8 @@ switch:
 
   - platform: template
     name: ${friendly_name}
-    id: ${device_name_alt}
-    icon: "mdi:light-switch"
+    id: light_switch 
+    icon: "mdi:lightbulb"
     lambda: |-
       if (id(power_sensor).state) {
         return true;

@@ -9,6 +9,7 @@ esphome:
 # Enable logging
 logger:
   level: ${log_level}
+  baud_rate: 0
 
 # NTP Configuration
 time:

@@ -1,7 +1,7 @@
 substitutions:
-  device_name: usb_power_strip
+  device_name: usb-power-strip
   friendly_name: USB Power Strip
-  # host_name: master-bedroom-light-1.local
+  log_level: INFO
 
 packages:
-  device_base: !include common/acenx-smart-power-strip.yaml
+  device_base: !include ../base/acenx-smart-power-strip.yaml
