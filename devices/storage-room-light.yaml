@@ -1,6 +1,6 @@
 substitutions:
-  device_name: upstairs-bedroom-main-light
-  friendly_name: Upstairs Bedroom 
+  device_name: storage-room-light
+  friendly_name: Storage Room
   log_level: INFO
 
 packages:
