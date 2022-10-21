@@ -1,0 +1,154 @@
+packages:
+  board: !include ../common/esp8266ex.yaml
+  default_sensors: !include ../common/default_sensors.yaml
+  default_controls: !include ../common/default_controls.yaml
+
+binary_sensor:
+  # Reports when the button is pressed
+  - platform: gpio
+    device_class: power
+    pin:
+      number: GPIO13
+      inverted: True
+    id: button_right
+    internal: true
+    on_press:
+      - switch.toggle: relay_right
+
+  - platform: gpio
+    device_class: power
+    pin:
+      number: GPIO4
+      inverted: True
+    id: button_left
+    internal: true
+    on_press:
+      - switch.toggle: relay_left
+
+
+sensor:
+  # Reports the Current, Voltage, and Power used by the plugged-in device (not counting this plug's own usage of about 0.8W/0.019A, so subtract those when calibrating with this plugged into a Kill-A-Watt type meter)
+  - platform: hlw8012
+    sel_pin:
+      number: GPIO3
+      inverted: True
+    cf_pin: GPIO5
+    cf1_pin: GPIO14
+    current_resistor: 0.001 #The value of the shunt resistor for current measurement. Defaults to the Sonoff POW’s value 0.001 ohm. Verified on https://fccid.io/2ANOO-SM800/Internal-Photos/Internal-Photos-3601477 that we use "R001" = 0.001 ohm
+    voltage_divider: 2401 #The value of the voltage divider on the board as (R_upstream + R_downstream) / R_downstream. Defaults to the Sonoff POW’s value 2351. From the pic we use 2x "125" = 2x 1.2Mohm for R_upstream and "102" = 1kohm for R_downstream, so (1,200,000+1,200,000+1,000)/1,000 = 2401
+    # but those don't fix the measurement values, probably because we actually have a BL0937 chip instead of a HLW8012, (and part variance aswell) so we have to manually calibrate with a known load or a load and a Kill-A-Watt type meter. My values used below will only be +/-10% of yours I think.
+    power:
+      name: ${friendly_name} Power
+      unit_of_measurement: W
+      id: wattage
+      filters:
+        - calibrate_linear:
+            # Map 0.0 (from sensor) to 0.0 (true value)
+            - 0.0 -> 0.0 #Need to keep 0 mapped to 0 for when connected device is not drawing any power
+            - 4054.3 -> 721.2 #Tested using a meter and 722.0W toaster -0.8W from just this plug with toaster off
+    current:
+      name: ${friendly_name} Current
+      unit_of_measurement: A
+      filters:
+        - calibrate_linear:
+            # Map 0.0 (from sensor) to 0.0 (true value)
+            - 0.0 -> 0.0 #Need to keep 0 mapped to 0 for when connected device is not drawing any power
+            - 7.4 -> 6.103 #Tested using a meter and 6.122A toaster -0.019A from just this plug with toaster off
+    voltage:
+      name: ${friendly_name} Voltage
+      unit_of_measurement: V
+      filters:
+        - calibrate_linear:
+            # Map 0.0 (from sensor) to 0.0 (true value)
+            #- 0.0 -> 0.0 #Don't care if 0 reading aligns with 0 real Volts since we won't ever measure that
+            - 294.7 -> 117.8 #Tested using a meter, value while connected toaster was on
+            - 321.7 -> 121.6 #value while connected toaster was off
+    change_mode_every: 1 #Skips first reading after each change, so this will double the update interval. Default 8
+    update_interval: 10s #20 second effective update rate for Power, 40 second for Current and Voltage. Default 60s
+
+  # Reports the total Power so-far each day, resets at midnight, see https://esphome.io/components/sensor/total_daily_energy.html
+  - platform: total_daily_energy
+    name: ${friendly_name} Total Daily Energy
+    power_id: wattage
+    filters:
+      - multiply: 0.001 ## convert Wh to kWh
+    unit_of_measurement: kWh
+
+switch:
+  - platform: gpio
+    name: ${friendly_name} Right Switch
+    pin: GPIO12
+    id: relay_right
+    restore_mode: RESTORE_DEFAULT_OFF #Try to restore relay state after reboot/power-loss event.
+    #RESTORE_DEFAULT_OFF (Default) - Attempt to restore state and default to OFF if not possible to restore. Uses flash write cycles.
+    #RESTORE_DEFAULT_ON - Attempt to restore state and default to ON. Uses flash write cycles.
+    #ALWAYS_OFF - Always initialize the pin as OFF on bootup. Does not use flash write cycles.
+    #ALWAYS_ON - Always initialize the pin as ON on bootup. Does not use flash write cycles.
+
+  - platform: gpio
+    name: ${friendly_name} Left Switch
+    pin: GPIO15
+    id: relay_left
+    restore_mode: RESTORE_DEFAULT_OFF #Try to restore relay state after reboot/power-loss event.
+    #RESTORE_DEFAULT_OFF (Default) - Attempt to restore state and default to OFF if not possible to restore. Uses flash write cycles.
+    #RESTORE_DEFAULT_ON - Attempt to restore state and default to ON. Uses flash write cycles.
+    #ALWAYS_OFF - Always initialize the pin as OFF on bootup. Does not use flash write cycles.
+    #ALWAYS_ON - Always initialize the pin as ON on bootup. Does not use flash write cycles.
+
+output:
+  - platform: esp8266_pwm
+    id: status_output
+    pin: GPIO0
+    inverted: True
+
+light:
+  - platform: monochromatic
+    name: ${friendly_name} Status LED
+    output: status_output
+    id: status_led
+    internal: true
+    restore_mode: ALWAYS_OFF #Start with light off after reboot/power-loss event.
+    #RESTORE_DEFAULT_OFF (Default) - Attempt to restore state and default to OFF if not possible to restore. Uses flash write cycles.
+    #RESTORE_DEFAULT_ON - Attempt to restore state and default to ON. Uses flash write cycles.
+    #ALWAYS_OFF - Always initialize the pin as OFF on bootup. Does not use flash write cycles.
+    #ALWAYS_ON - Always initialize the pin as ON on bootup. Does not use flash write cycles.
+    effects:
+      - strobe:
+      - flicker:
+          alpha: 50% #The percentage that the last color value should affect the light. More or less the “forget-factor” of an exponential moving average. Defaults to 95%.
+          intensity: 50% #The intensity of the flickering, basically the maximum amplitude of the random offsets. Defaults to 1.5%.
+      - lambda:
+          name: Throb
+          update_interval: 1s
+          lambda: |-
+            static int state = 0;
+            auto call = id(status_led).turn_on();
+            // Transtion of 1000ms = 1s
+            call.set_transition_length(1000);
+            if (state == 0) {
+              call.set_brightness(1.0);
+            } else {
+              call.set_brightness(0.01);
+            }
+            call.perform();
+            state += 1;
+            if (state == 2)
+              state = 0;
+
+# Blink the red light if we aren't connected to WiFi. Could use https://esphome.io/components/status_led.html instead but then we couldn't use the red light for other things as well.
+interval:
+  - interval: 500ms
+    then:
+      - if:
+          condition:
+            not:
+              wifi.connected:
+          then:
+            - light.turn_on:
+                id: status_led
+                brightness: 100%
+                transition_length: 0s
+            - delay: 250ms
+            - light.turn_off:
+                id: status_led
+                transition_length: 250ms
