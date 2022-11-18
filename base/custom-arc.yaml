@@ -1,0 +1,28 @@
+substitutions:
+  device_name: custom_arc #change
+
+packages:
+  board: !include ../common/esp8266ex.yaml
+  default_sensors: !include ../common/default_sensors.yaml
+  default_controls: !include ../common/default_controls.yaml
+
+status_led:
+  # https://esphome.io/components/status_led
+  pin:
+    number: GPIO1
+
+output:
+  # https://esphome.io/components/output/esp8266_pwm.html
+  - platform: esp8266_pwm
+    id: lamp_output
+    pin:
+      number: GPIO2
+
+light:
+  # https://esphome.io/components/light/monochromatic.html
+  - platform: monochromatic
+    name: Lamp Output
+    output: lamp_output
+    id: blue_led
+    default_transition_length: 1ms # default 1s
+
