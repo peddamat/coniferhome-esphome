@@ -1,7 +1,7 @@
 substitutions:
   device_name: family-room-main-light
-  friendly_name: Family Room 
+  friendly_name: Family Room
   log_level: INFO
 
 packages:
-  device_base: !include ../base/treatlife-ds03.yaml
+  device_base: !include base/treatlife-ds03.yaml

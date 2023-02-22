@@ -1,7 +1,0 @@
-substitutions:
-  device_name: master-bedroom-light
-  friendly_name: Master Bedroom 
-  log_level: INFO
-
-packages:
-  device_base: !include ../base/treatlife-ds03.yaml

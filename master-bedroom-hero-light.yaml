@@ -1,10 +1,10 @@
 substitutions:
-  device_name: master-bedroom-baby-light
-  friendly_name: Master Bedroom Baby Light
+  device_name: master-bedroom-hero-light
+  friendly_name: Master Bedroom Hero Light
   log_level: INFO
 
 packages:
-  device_base: !include ../base/treatlife-ds02s.yaml
+  device_base: !include base/treatlife-ds02s.yaml
 
 # Initial Settings
 esphome:

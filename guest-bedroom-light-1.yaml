@@ -4,4 +4,4 @@ substitutions:
   host_name: guest_bedroom_light_1.local
 
 packages:
-  device_base: !include ../base/treatlife-ds02s.yaml
+  device_base: !include base/treatlife-ds02s.yaml

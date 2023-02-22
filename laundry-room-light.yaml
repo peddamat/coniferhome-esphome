@@ -4,7 +4,7 @@ substitutions:
   log_level: INFO
 
 packages:
-  device_base: !include ../base/cloudfree-swm1.yaml
+  device_base: !include base/cloudfree-swm1.yaml
 
 # Initial Settings
 esphome:

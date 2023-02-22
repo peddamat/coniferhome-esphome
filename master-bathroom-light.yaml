@@ -1,10 +1,10 @@
 substitutions:
-  device_name: stairs-motion-top
-  friendly_name: Stairs Motion Top 
+  device_name: master-bathroom-light
+  friendly_name: Master Bathroom
   log_level: INFO
 
 packages:
-  device_base: !include ../base/cloudfree-swm1.yaml
+  device_base: !include base/cloudfree-swm1.yaml
 
 # Initial Settings
 esphome:
@@ -14,8 +14,8 @@ esphome:
       # Set Mode
       - select.set:
           id: mode_select
-          option: "Motion Sensor"
+          option: "Motion Activated Light"
       # Set Occupancy Timeout (mins)
       - number.set:
           id: occupancy_timeout
-          value: 5
+          value: 10

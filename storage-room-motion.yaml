@@ -1,10 +1,10 @@
 substitutions:
-  device_name: garage-light
-  friendly_name: Garage
+  device_name: storage-room-motion
+  friendly_name: Storage Room Motion
   log_level: INFO
 
 packages:
-  device_base: !include ../base/cloudfree-swm1.yaml
+  device_base: !include base/cloudfree-swm1.yaml
 
 # Initial Settings
 esphome:
@@ -14,7 +14,7 @@ esphome:
       # Set Mode
       - select.set:
           id: mode_select
-          option: "Motion Activated Light"
+          option: "Motion Sensor"
       # Set Occupancy Timeout (mins)
       - number.set:
           id: occupancy_timeout

@@ -4,7 +4,7 @@ substitutions:
   log_level: INFO
 
 packages:
-  device_base: !include ../base/avatar-awp12l.yaml
+  device_base: !include base/avatar-awp12l.yaml
 
 # Initial Settings
 # esphome:

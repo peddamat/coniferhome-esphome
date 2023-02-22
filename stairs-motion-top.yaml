@@ -1,10 +1,10 @@
 substitutions:
-  device_name: storage-room-motion
-  friendly_name: Storage Room Motion
+  device_name: stairs-motion-top
+  friendly_name: Stairs Motion Top
   log_level: INFO
 
 packages:
-  device_base: !include ../base/cloudfree-swm1.yaml
+  device_base: !include base/cloudfree-swm1.yaml
 
 # Initial Settings
 esphome:
@@ -18,4 +18,4 @@ esphome:
       # Set Occupancy Timeout (mins)
       - number.set:
           id: occupancy_timeout
-          value: 10
+          value: 5

@@ -4,4 +4,4 @@ substitutions:
   log_level: INFO
 
 packages:
-  device_base: !include ../base/acenx-smart-power-strip.yaml
+  device_base: !include base/acenx-smart-power-strip.yaml

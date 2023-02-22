@@ -1,7 +1,7 @@
 substitutions:
   device_name: upstairs-bedroom-main-light
-  friendly_name: Upstairs Bedroom 
+  friendly_name: Upstairs Bedroom
   log_level: INFO
 
 packages:
-  device_base: !include ../base/treatlife-ds03.yaml
+  device_base: !include base/treatlife-ds03.yaml

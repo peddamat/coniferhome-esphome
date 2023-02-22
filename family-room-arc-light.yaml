@@ -4,4 +4,4 @@ substitutions:
   log_level: INFO
 
 packages:
-  device_base: !include ../base/custom-arc.yaml
+  device_base: !include base/custom-arc.yaml

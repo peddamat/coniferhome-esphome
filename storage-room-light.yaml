@@ -4,4 +4,4 @@ substitutions:
   log_level: INFO
 
 packages:
-  device_base: !include ../base/treatlife-ds03.yaml
+  device_base: !include base/treatlife-ds03.yaml

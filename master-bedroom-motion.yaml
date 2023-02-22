@@ -1,10 +1,10 @@
 substitutions:
-  device_name: upstairs-bedroom-motion
-  friendly_name: Upstairs Bedroom Motion
+  device_name: master-bedroom-motion
+  friendly_name: Master Bedroom Motion
   log_level: INFO
 
 packages:
-  device_base: !include ../base/cloudfree-swm1.yaml
+  device_base: !include base/cloudfree-swm1.yaml
 
 # Initial Settings
 esphome:

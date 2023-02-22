@@ -4,7 +4,7 @@ substitutions:
   log_level: INFO
 
 packages:
-  device_base: !include ../base/treatlife-ds02s.yaml
+  device_base: !include base/treatlife-ds02s.yaml
 
 # Initial Settings
 esphome:
